@@ -27,6 +27,12 @@ module.exports = buildSchema(`
         post: [Post!]!
     }
 
+    input PostData {
+        title: String!
+        content: String!
+        imageUrl: String!
+    }
+
     input UserInputData {
         email: String!
         name: String!
@@ -44,6 +50,7 @@ module.exports = buildSchema(`
 
     type RootMutation {
         createUser(userInput: UserInputData): User!
+        createPost(postInput: PostData): Post!
     }
 
     schema{
