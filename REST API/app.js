@@ -3,7 +3,7 @@ const graphqlHttp = require('express-graphql')
 const graphqpSchema = require('./graphql/schema')
 const graphqpResolver = require('./graphql/resolvers')
 const app = express();
-const isAuth = require('./middleware/isAuth')
+const isAuth = require('./middleware/auth')
 const mongoose = require('mongoose')
 
 const bodyParser = require('body-parser')
@@ -21,8 +21,6 @@ app.use((req, res, next) => {
     }
     next()
 })
-
-app.use(isAuth)
 
 const MONGODB_URI = 'mongodb+srv://giangng:TIAslMBTLYCTBIG%40CNN44@api-test-1-uryhd.gcp.mongodb.net/message?retryWrites=true'
 const fileStorage = multer.diskStorage({
@@ -54,6 +52,8 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // app.use('/auth', authRoutes)
 // app.use('/feed', feedRoutes)
+
+app.use(isAuth)
 
 app.use('/graphql', graphqlHttp({
     schema: graphqpSchema,

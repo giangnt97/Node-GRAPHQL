@@ -1,5 +1,5 @@
 const User = require('../models/user')
-const Post = require('../models/user')
+const Post = require('../models/post')
 const bcrypt = require('bcryptjs')
 const validator = require('validator')
 const jwt = require('jsonwebtoken')
@@ -52,56 +52,60 @@ module.exports = {
       throw err
     }
     const token = jwt.sign({
-      userId: user
-      ._id
-      .toString(),
+      userId: user._id.toString(),
       email: user.email
     }, "somesupersecretsecret", {expiresIn: '1h'})
     return {
       token: token,
-      userId: user
-      ._id
-      .toString()
+      userId: user._id.toString()
     }
   },
   
-  createPost: async function ({postInput}, req) {
+  createPost: async function({ postInput }, req) {
     if (!req.isAuth) {
-      const err = new Error("Not authenticated")
-      err.code = 401
-      throw err
+      const error = new Error('Not authenticated!');
+      error.code = 401;
+      throw error;
     }
-    let errors = []
-    if (validator.isEmpty(postInput.title) || !validator.isLength(postInput.title, {min: 5})) {
-      errors.push({message: "Title must be descriptive"})
+    const errors = [];
+    if (
+      validator.isEmpty(postInput.title) ||
+      !validator.isLength(postInput.title, { min: 5 })
+    ) {
+      errors.push({ message: 'Title is invalid.' });
     }
-    if (validator.isEmpty(postInput.content) || !validator.isLength(postInput.content, {min: 5})) {
-      errors.push({message: "content must be descriptive"})
-    }
-    if (validator.isEmpty(postInput.imageUrl) || !validator.isLength(postInput.imageUrl, {min: 5})) {
-      errors.push({message: "Must have a picture"})
+    if (
+      validator.isEmpty(postInput.content) ||
+      !validator.isLength(postInput.content, { min: 5 })
+    ) {
+      errors.push({ message: 'Content is invalid.' });
     }
     if (errors.length > 0) {
-      const error = new Error("invalid input")
-      error.data = errors
+      const error = new Error('Invalid input.');
+      error.data = errors;
       error.code = 422;
-      throw error
+      throw error;
     }
-    const user = await User.findById(req.userId)
-    if(!user) {
-      const err = new Err("Your session has expried")
-      err.code = 401
-      throw err
+    const user = await User.findById(req.userId);
+    if (!user) {
+      const error = new Error('Invalid user.');
+      error.code = 401;
+      throw error;
     }
-    const post = new Post({title: postInput.title, content: postInput.content, imageUrl: postInput.imageUrl, creator: user })
-    
-    const createdPost = await post.save()
-    user.posts.push(createdPost)
+    const post = new Post({
+      title: postInput.title,
+      content: postInput.content,
+      imageUrl: postInput.imageUrl,
+      creator: user
+    });
+    const createdPost = await post.save();
+    user.posts.push(createdPost);
+    await user.save();
     return {
       ...createdPost._doc,
       _id: createdPost._id.toString(),
       createdAt: createdPost.createdAt.toISOString(),
       updatedAt: createdPost.updatedAt.toISOString()
-    }
-  }
+    };
+  },
 }

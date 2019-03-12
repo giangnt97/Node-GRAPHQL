@@ -154,7 +154,7 @@ class Feed extends Component {
     let graphqlQuery = {
       query: `
       mutation{
-        createPost(postInput: {content:"${postData.content}", title:"${postData.title}",imageUrl:"$213323"}) {
+        createPost(postInput: {content:"${postData.content}", title:"${postData.title}", imageUrl:"$213323"}) {
           _id title content imageUrl creator { name } createdAt
         }
       }
@@ -179,6 +179,7 @@ class Feed extends Component {
           );
         } 
         if (resData.errors) {
+          console.log(resData.errors)
           throw new Error(`Cannot Login`)
         }
         console.log(resData);
